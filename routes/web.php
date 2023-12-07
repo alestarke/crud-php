@@ -15,7 +15,9 @@ use App\Http\Controllers\ProdutoController;
 |
 */
 
-Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('produtos.create');
-Route::post('/produtos', [ProdutoController::class, 'store'])->name('produtos.store');
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/produtos', [ProdutoController::class, 'list'])->name('produtos.list');
+Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('produtos.create');
+Route::get('/produtos/{id}/edit', [ProdutoController::class, 'edit'])->name('produtos.edit');
+Route::delete('/produtos/{id}/delete', [ProdutoController::class, 'delete'])->name('produtos.delete');
+Route::post('/produtos', [ProdutoController::class, 'store'])->name('produtos.store');
