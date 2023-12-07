@@ -37,12 +37,12 @@
         </thead>
         <tbody>
             @foreach ($produtos as $produto)
-                <tr>
+                <tr data-produto-id="{{ $produto->id }}">
                     <td>{{ $produto->id }}</td>
-                    <td class="editable" contenteditable="true">{{ $produto->nome }}</td>
-                    <td class="editable" contenteditable="true">{{ $produto->categoria }}</td>
-                    <td class="editable" contenteditable="true">{{ $produto->preco }}</td>
-                    <td class="editable" contenteditable="true">{{ $produto->quantidade_em_estoque }}</td>
+                    <td class="editable editable-nome" contenteditable="true">{{ $produto->nome }}</td>
+                    <td class="editable editable-categoria" contenteditable="true">{{ $produto->categoria }}</td>
+                    <td class="editable editable-preco" contenteditable="true">{{ $produto->preco }}</td>
+                    <td class="editable editable-quantidade" contenteditable="true">{{ $produto->quantidade_em_estoque }}</td>
                     <td>
                         <button class="edit-btn">Editar</button>
                         <button class="update-btn" style="display:none;">Atualizar</button>
@@ -67,10 +67,39 @@
             // Atualiza os dados ao clicar no botão Atualizar
             $('.update-btn').on('click', function() {
                 var row = $(this).closest('tr');
+
+                // Coleta os dados atualizados dos campos editáveis
+                var updatedData = {
+                    nome: row.find('.editable-nome').text(),
+                    categoria: row.find('.editable-categoria').text(),
+                    preco: row.find('.editable-preco').text(),
+                    quantidade_em_estoque: row.find('.editable-quantidade').text(),
+                };
+
+                // Envia os dados atualizados para o servidor via Ajax
+                $.ajax({
+                    url: '/produtos/' + row.data('produto-id'),
+                    type: 'PUT',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        ...updatedData,
+                    },
+                    success: function(response) {
+                        // Aguarda 1 segundo antes de recarregar a página
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1000);
+                    },
+                    error: function(xhr, status, error) {
+                        // Lógica para lidar com erros, se necessário
+                        console.error('Erro ao atualizar:', error);
+                    }
+                });
+
+                // Restaura o estado dos elementos HTML
                 row.find('.editable').attr('contenteditable', 'false');
                 row.find('.edit-btn').show();
                 row.find('.update-btn').hide();
-                // Aqui você pode enviar os dados atualizados para o servidor via Ajax
             });
 
             // Adiciona ação de exclusão ao clicar no botão Excluir
@@ -82,9 +111,6 @@
 
                 // Pergunta ao usuário se realmente deseja excluir
                 if (confirm('Tem certeza que deseja excluir?')) {
-                    setTimeout(function() {
-                         window.location.reload();
-                    }, 1000);
                     // Chama a rota de exclusão via Ajax
                     $.ajax({
                         url: deleteUrl,
@@ -92,9 +118,11 @@
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
-                           success: function(response) {
-                            // Se a exclusão for bem-sucedida, recarregue a página ou faça outra ação desejada
-                            window.location.reload();
+                        success: function(response) {
+                            // Aguarda 1 segundo antes de recarregar a página
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1000);
                         },
                         error: function(error) {
                             console.error('Erro ao excluir produto:', error);
