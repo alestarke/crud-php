@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+
+  php:
+    image: php:7.4-fpm
+    volumes:
+      - ./src:/var/www/html
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: database_crud
+      MYSQL_USER: alestarke
+      MYSQL_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:alpine
